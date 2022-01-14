@@ -16,10 +16,14 @@ const camera = new THREE.PerspectiveCamera(
 //*set up renderer
 const renderer = new THREE.WebGLRenderer({
   canvas: document.querySelector('#bg'),
+  antialias: true,
+  alpha: true,
 });
-renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setPixelRatio(window.devicePixelRatio ? window.devicePixelRatio : 1);
 renderer.setSize(window.innerWidth, window.innerHeight);
-camera.position.z = 15;
+renderer.autoClear = false;
+renderer.setClearColor(0x000000, 0.0);
+camera.position.z = 20;
 
 //*here's some light
 const pointLight = new THREE.PointLight(0xffaaaa);
@@ -76,50 +80,41 @@ Array(400).fill().forEach(addStar);
 //*add scroll animation
 let scrollNum = 0;
 function moveCamera(e) {
-  const t = document.body.getBoundingClientRect().top;
-
+  console.log(e.target.scrollTop);
   //*scroll up
-  if (scrollNum - e.target.scrollingElement.scrollTop >= 0) {
+  if (scrollNum - e.target.scrollTop >= 0) {
     thing.rotation.x -= 0.05;
     thing.rotation.y -= 0.075;
     thing.rotation.z -= 0.05;
 
-    camera.position.z -= t * -0.0005;
-    camera.position.x -= t * -0.0004;
-    camera.rotation.y -= t * -0.001;
+    camera.position.z -= 0.5;
+    camera.position.x -= 1;
     //*scroll down
   } else {
     thing.rotation.x += 0.05;
     thing.rotation.y += 0.075;
     thing.rotation.z += 0.05;
 
-    camera.position.z += t * -0.001;
-    camera.position.x += t * -0.0004;
-    camera.rotation.y += t * -0.001;
+    camera.position.z += 1;
+    camera.position.x += 1.3;
   }
   emma.rotation.y += 0.1;
-  scrollNum = e.target.scrollingElement.scrollTop;
+  scrollNum = e.target.scrollTop;
 }
-
-document.addEventListener('scroll', (e) => moveCamera(e), false);
-
-//*add background
-//Photo by Folco Masi https://unsplash.com/@folcomasi?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText
-//on unsplash https://unsplash.com/t/textures-patterns?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText
-const spaceTexture = new THREE.TextureLoader().load('images/sky.jpg');
-scene.background = spaceTexture;
+let body = document.querySelector('body');
+body.addEventListener('scroll', (e) => moveCamera(e), false);
 
 //*avatar plane
-const emmaTexture = new THREE.TextureLoader().load('images/github-avatar.png');
+const emmaTexture = new THREE.TextureLoader().load('images/emmaa.jpg');
 const emma = new THREE.Mesh(
-  new THREE.CircleGeometry(4, 32),
+  new THREE.PlaneGeometry(8, 8),
   new THREE.MeshBasicMaterial({ map: emmaTexture, side: THREE.DoubleSide })
 );
 scene.add(emma);
 
 //cool object
 const thing = new THREE.Mesh(
-  new THREE.TorusKnotGeometry(10, 3, 100, 20),
+  new THREE.TorusKnotGeometry(5, 1, 100, 20),
   new THREE.MeshStandardMaterial({
     color: 0xb78ed2,
     wireframe: true,
